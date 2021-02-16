@@ -55,5 +55,6 @@ $IgnoreScript = '^(VMTest123|TestExcludeWildcard.*)$'
 ```
 
 For more information about regular expressions in PowerShell, visit [Microsoft Docs](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_regular_expressions).
+
 ".+" is one or more charakters
 ".*" is zero or more charakters
