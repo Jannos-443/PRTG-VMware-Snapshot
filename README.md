@@ -35,9 +35,25 @@ Default Values:
 ![PRTG-VMware-Snapshot](media/Sensor-Limit-Channel.png)
 ![PRTG-VMware-Snapshot](media/Sensor-Limit.png)
 
+6. Set the "$IgnorePattern" parameter to Exclude VMs
+
 
 
 ## Examples
 ![PRTG-VMware-Snapshot](media/Limits-OK.png)
 ![PRTG-VMware-Snapshot](media/Limits-Warning.png)
 ![PRTG-VMware-Snapshot](media/Limits-Error.png)
+
+VM exceptions
+------------------
+You can either use the **parameter IgnorePattern** to exclude a service on sensor basis, or set the **variable $IgnoreScript** within the script. Both variables take a regular expression as input to provide maximum flexibility. These regexes are then evaluated againt the **VM Name**
+
+By default, the $IgnoreScript varialbe looks like this:
+
+```powershell
+$IgnoreScript = '^(VMTest123|TestExcludeWildcard.*)$'
+```
+
+For more information about regular expressions in PowerShell, visit [Microsoft Docs](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_regular_expressions).
+".+" is one or more charakters
+".*" is zero or more charakters
