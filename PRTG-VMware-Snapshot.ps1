@@ -1,6 +1,4 @@
-<#
-    https://github.com/Jannos-443/PRTG-VMware-Snapshot
-    
+<#       
     .SYNOPSIS
     Monitors Snapshot Age/Size
 
@@ -55,7 +53,8 @@
     .NOTES
     This script is based on the sample by Paessler (https://kb.paessler.com/en/topic/67869-auto-starting-services) and debold (https://github.com/debold/PRTG-WindowsServices)
 
-    Author:  Jannes Brinkmann
+    Author:  Jannos-443
+    https://github.com/Jannos-443/PRTG-VMware-Snapshot
 
 #>
 param(
