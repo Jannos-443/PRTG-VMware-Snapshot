@@ -1,12 +1,20 @@
 <#
     https://github.com/Jannos-443/PRTG-VMware-Snapshot
+    
+    .SYNOPSIS
+    Monitors Snapshot Age/Size
+
+    .DESCRIPTION
+    Using WMI this script searches for pending Print Jobs.
+    Exceptions can be made within this script by changing the variable $IgnoreScript. This way, the change applies to all PRTG sensors 
+    based on this script. If exceptions have to be made on a per sensor level, the script parameter $IgnorePattern can be used.
 
     Copy this script to the PRTG probe EXE scripts folder (${env:ProgramFiles(x86)}\PRTG Network Monitor\Custom Sensors\EXE)
     and create a "EXE/Script" sensor. Choose this script from the dropdown and set at least:
 
     + Parameters: VCenter, Username, Password
     + Upper Error Limit 1
-    + Upper Warning Limit 0
+    + Upper Warning Limit 0,1
     + Scanning Interval: minimum 5 minutes
 
     .PARAMETER ViServer
@@ -22,6 +30,10 @@
     Regular expression to describe the VM Name for Example "Test" to exclude every VM with Test in the name
 
     Example: ^(DemoTestServer|DemoAusname2)$
+
+    Example2: ^(Test123.*|TestPrinter555)$ excluded Test12345 und alles mit 
+
+    #https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_regular_expressions?view=powershell-7.1
     
     .PARAMETER WarningHours
     Warninglimit for Snapshot Age
@@ -39,6 +51,9 @@
     Sample call from PRTG EXE/Script
     EXE/Script= PSx64.exe
     Parameters= -f="PRTG-VMware-Snapshot.ps1" -p="%VCenter%" "%Username%" "%PW%"
+
+    .NOTES
+    This script is based on the sample by Paessler (https://kb.paessler.com/en/topic/67869-auto-starting-services) and debold (https://github.com/debold/PRTG-WindowsServices)
 
     Author:  Jannes Brinkmann
 
