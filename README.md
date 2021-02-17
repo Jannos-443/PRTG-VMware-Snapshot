@@ -31,7 +31,7 @@ Default Values:
 
 5. Change "Value" Channel >> "Lookups and Limits" to "Enable alerting based on limits"
 - Upper Error Limit 1
-- Upper Warning Limit 0
+- Upper Warning Limit 0,1
 ![PRTG-VMware-Snapshot](media/Sensor-Limit-Channel.png)
 ![PRTG-VMware-Snapshot](media/Sensor-Limit.png)
 
