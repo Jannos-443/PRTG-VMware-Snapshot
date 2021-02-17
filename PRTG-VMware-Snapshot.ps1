@@ -122,8 +122,18 @@ foreach ($VM in $VMs) {
 
 #Filter Snapshots
 
+#hardcoded list that applies to all hosts
+$IgnoreScript = '^(TestIgnore)$' 
+
 #Remove Ignored VMs
-$AllSnaps = $AllSnaps | where {$_.VM -notmatch $IgnorePattern} 
+if ($IgnorePattern -ne "") {
+    $AllSnaps = $AllSnaps | where {$_.VM -notmatch $IgnorePattern}  
+}
+
+if ($IgnoreScript -ne "") {
+    $AllSnaps = $AllSnaps | where {$_.VM -notmatch $IgnoreScript}  
+}
+
 
 foreach ($Snap in $AllSnaps){
     if(($Snap.Size -ge $ErrorSize) -or ($Snap.Created -le (get-date).AddHours(-$ErrorHours)))
