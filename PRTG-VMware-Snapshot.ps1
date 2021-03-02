@@ -3,7 +3,7 @@
     Monitors Snapshot Age/Size
 
     .DESCRIPTION
-    Using WMI this script searches for pending Print Jobs.
+    Using PowerCLI this script searches for VMware Snapshots.
     Exceptions can be made within this script by changing the variable $IgnoreScript. This way, the change applies to all PRTG sensors 
     based on this script. If exceptions have to be made on a per sensor level, the script parameter $IgnorePattern can be used.
 
