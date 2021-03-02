@@ -48,7 +48,7 @@
     .EXAMPLE
     Sample call from PRTG EXE/Script
     EXE/Script= PSx64.exe
-    Parameters= -f="PRTG-VMware-Snapshot.ps1" -p="%VCenter%" "%Username%" "%PW%"
+    Parameters= -f="PRTG-VMware-Snapshot.ps1" -p="%VCenter%" "%Username%" "%PW%" "(DemoTestServer|DemoAusname2)"
 
     .NOTES
     This script is based on the sample by Paessler (https://kb.paessler.com/en/topic/67869-auto-starting-services) and debold (https://github.com/debold/PRTG-WindowsServices)
@@ -61,7 +61,7 @@ param(
     [Parameter(Mandatory)] [string]$ViServer = $null,
     [Parameter(Mandatory)] [string]$User = $null,
     [Parameter(Mandatory)] [string]$Password = $null,
-    [string]$IgnorePattern = '(DemoTestServer|DemoAusname2)', #VMs to ignore
+    [string]$IgnorePattern = "",
     [int]$WarningHours = 24,
     [int]$ErrorHours = 48,
     [int]$WarningSize = 10,  #in GB
