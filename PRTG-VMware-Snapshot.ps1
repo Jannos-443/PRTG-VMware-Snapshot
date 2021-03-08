@@ -29,7 +29,7 @@
 
     Example: ^(DemoTestServer|DemoAusname2)$
 
-    Example2: ^(Test123.*|TestPrinter555)$ excluded Test12345 und alles mit 
+    Example2: ^(Test123.*|TestPrinter555)$ excludes Test123 and also Test12345
 
     #https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_regular_expressions?view=powershell-7.1
     
