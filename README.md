@@ -46,7 +46,7 @@ Default Values:
 
 VM exceptions
 ------------------
-You can either use the **parameter $IgnorePattern** to exclude a service on sensor basis, or set the **variable $IgnoreScript** within the script. Both variables take a regular expression as input to provide maximum flexibility. These regexes are then evaluated againt the **VM Name**
+You can either use the **parameter $IgnorePattern** to exclude a VM on sensor basis, or set the **variable $IgnoreScript** within the script. Both variables take a regular expression as input to provide maximum flexibility. These regexes are then evaluated againt the **VM Name**
 
 By default, the $IgnoreScript varialbe looks like this:
 
