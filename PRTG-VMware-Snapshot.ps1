@@ -207,6 +207,7 @@ $xmlOutput = $xmlOutput + "<result>
         <value>$AllCount</value>
         <unit>Count</unit>
         </result>
+        
         <result>
         <channel>Snapshot Error</channel>
         <value>$ErrorCount</value>
