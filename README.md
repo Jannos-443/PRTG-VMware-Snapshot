@@ -22,20 +22,14 @@ Default Values:
 2. Make sure the VMware PowerCLI Module exists on the Probe under the Powershell Module Path
    - C:\Program Files\WindowsPowerShell\Modules\VMware.VimAutomation.Core
 
-3. Place "PSx64.exe" and "PRTG-VMware-Snapshot-Age.ps1" under "C:\Program Files (x86)\PRTG Network Monitor\Custom Sensors\EXE"
+3. Place "PSx64.exe" and "PRTG-VMware-Snapshot-Age.ps1" under "C:\Program Files (x86)\PRTG Network Monitor\Custom Sensors\EXEXML"
 
 4. Create new Sensor PSx64.exe -f="PRTG-VMware-Snapshot.ps1" -p="%VCenter%" "%Username%" "%PW%"
    - Set "Scanning Interval" to min "10 minutes"
 ![PRTG-VMware-Snapshot](media/Sensor-Scan-Intervall.png)
 
 
-5. Change "Value" Channel >> "Lookups and Limits" to "Enable alerting based on limits"
-   - Upper Error Limit 1
-   - Upper Warning Limit 0,1
-![PRTG-VMware-Snapshot](media/Sensor-Limit-Channel.png)
-![PRTG-VMware-Snapshot](media/Sensor-Limit.png)
-
-6. Set the "$IgnorePattern" or "$IgnoreScript" parameter to Exclude VMs
+5. Set the "$IgnorePattern" or "$IgnoreScript" parameter to Exclude VMs
 
 
 
