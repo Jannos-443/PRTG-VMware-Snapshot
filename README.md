@@ -35,8 +35,7 @@ Default Values:
 
 ## Examples
 ![PRTG-VMware-Snapshot](media/Limits-OK.png)
-![PRTG-VMware-Snapshot](media/Limits-Warning.png)
-![PRTG-VMware-Snapshot](media/Limits-Error.png)
+
 
 VM exceptions
 ------------------
