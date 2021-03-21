@@ -134,7 +134,7 @@ try {
 } catch {
     Write-Output "<prtg>"
     Write-Output " <error>1</error>"
-    Write-Output " <text>Could in Get-VM. Error: $($_.Exception.Message)</text>"
+    Write-Output " <text>Could not Get-VM. Error: $($_.Exception.Message)</text>"
     Write-Output "</prtg>"
     Exit
 }
