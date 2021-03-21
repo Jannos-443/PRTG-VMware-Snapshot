@@ -34,7 +34,7 @@ Default Values:
 
 
 ## Examples
-![PRTG-VMware-Snapshot](media/Test.png)
+![PRTG-VMware-Snapshot](media/test.png)
 
 
 VM exceptions
