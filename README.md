@@ -26,8 +26,6 @@ Default Values:
 
 4. Create new Sensor PSx64.exe -f="PRTG-VMware-Snapshot.ps1" -p="%VCenter%" "%Username%" "%PW%"
    - Set "Scanning Interval" to min "10 minutes"
-![PRTG-VMware-Snapshot](media/Sensor-Scan-Intervall.png)
-
 
 5. Set the "$IgnorePattern" or "$IgnoreScript" parameter to Exclude VMs
 
