@@ -9,11 +9,12 @@ Jannos-443
 
 This Sensor Monitors Snapshots with specific Age or Size.
 
-Default Values:
-- WarningHours = 24 (hours)
-- ErrorHours = 48 (hours)
-- WarningSize = 10 (GB)
-- ErrorSize = 20 (GB)
+| Parameter | Default Value |
+| --- | --- |
+| WarningHours | 24 (hours) |
+| ErrorHours | 48 (hours) |
+| WarningSize | 10 (GB) |
+| ErrorSize | 20 (GB) |
 
 ## HOW TO
 
