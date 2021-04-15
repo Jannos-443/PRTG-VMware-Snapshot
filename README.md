@@ -25,8 +25,14 @@ This Sensor Monitors Snapshots with specific Age or Size.
 
 3. Place "PSx64.exe" and "PRTG-VMware-Snapshot-Age.ps1" under `C:\Program Files (x86)\PRTG Network Monitor\Custom Sensors\EXEXML`
 
-4. Create new Sensor PSx64.exe -f="PRTG-VMware-Snapshot.ps1" -p="%VCenter%" "%Username%" "%PW%"
-   - Set "Scanning Interval" to min "10 minutes"
+4. Create new Sensor
+
+   | Settings | Value |
+   | --- | --- |
+   | EXE/Script | PSx64.exe |
+   | Parameters | `-f="PRTG-VMware-Snapshot.ps1" -p="yourVCenter" "yourUser" "yourPassword"` |
+   | Scanning Interval | 10 minutes |
+
 
 5. Set the "$IgnorePattern" or "$IgnoreScript" parameter to Exclude VMs
 
