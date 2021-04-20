@@ -16,7 +16,7 @@
     .PARAMETER ViServer
     The Hostname of the VCenter Server
 
-    .PARAMETER UserName
+    .PARAMETER User
     Provide the VCenter Username
 
     .PARAMETER Password
@@ -27,7 +27,7 @@
 
     Example: ^(DemoTestServer|DemoAusname2)$
 
-    Example2: ^(Test123.*|TestPrinter555)$ excluded Test12345 und alles mit 
+    Example2: ^(Test123.*|Test555)$ excludes Test123, Test1234, Test12345 and Test555
 
     #https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_regular_expressions?view=powershell-7.1
     
@@ -68,13 +68,37 @@ param(
 #Catch all unhandled Errors
 trap{
     $null = Disconnect-VIServer -Server $ViServer -Confirm:$false -ErrorAction SilentlyContinue
+    $Output = "line:$($_.InvocationInfo.ScriptLineNumber.ToString()) char:$($_.InvocationInfo.OffsetInLine.ToString()) --- message: $($_.Exception.Message.ToString()) --- line: $($_.InvocationInfo.Line.ToString()) "
+    $Output = $Output.Replace("<","")
+    $Output = $Output.Replace(">","")
     Write-Output "<prtg>"
-    Write-Output " <error>1</error>"
-    Write-Output " <text>$($_.ToString() - $($_.ScriptStackTrace))</text>"
+    Write-Output "<error>1</error>"
+    Write-Output "<text>$Output</text>"
     Write-Output "</prtg>"
     Exit
 }
 
+#https://stackoverflow.com/questions/19055924/how-to-launch-64-bit-powershell-from-32-bit-cmd-exe
+#############################################################################
+#If Powershell is running the 32-bit version on a 64-bit machine, we 
+#need to force powershell to run in 64-bit mode .
+#############################################################################
+if ($env:PROCESSOR_ARCHITEW6432 -eq "AMD64") {
+    #Write-warning  "Y'arg Matey, we're off to 64-bit land....."
+    if ($myInvocation.Line) {
+        &"$env:WINDIR\sysnative\windowspowershell\v1.0\powershell.exe" -NonInteractive -NoProfile $myInvocation.Line
+    }else{
+        &"$env:WINDIR\sysnative\windowspowershell\v1.0\powershell.exe" -NonInteractive -NoProfile -file "$($myInvocation.InvocationName)" $args
+    }
+exit $lastexitcode
+}
+
+
+#write-host "Main script body"
+
+#############################################################################
+#End
+#############################################################################    
 
 $WarningVMs = ""
 $ErrorVMs = ""
@@ -174,7 +198,7 @@ foreach ($Snap in $AllSnaps){
         $ErrorVMs += "VM=$($Snap.VM) Created=$(($snap.Created).ToString("yy-MM-dd_HH-mm")) Size=$([math]::Round(($Snap.SizeGB),2))GB; "
         $ErrorCount +=1
         }
-    if(($Snap.Size -ge $WarningSize) -or ($Snap.Created -le (get-date).AddHours(-$WarningHours)))
+    elseif(($Snap.Size -ge $WarningSize) -or ($Snap.Created -le (get-date).AddHours(-$WarningHours)))
         {
         $WarningVMs  += "VM=$($Snap.VM) Created=$(($snap.Created).ToString("yy-MM-dd_HH-mm")) Size=$([math]::Round(($Snap.SizeGB),2))GB; " 
         $WarningCount +=1
@@ -207,13 +231,13 @@ $xmlOutput = $xmlOutput + "<result>
         <value>$AllCount</value>
         <unit>Count</unit>
         </result>
-        
+
         <result>
         <channel>Snapshot Error</channel>
         <value>$ErrorCount</value>
         <unit>Count</unit>
         <limitmode>1</limitmode>
-        <LimitMaxError>0.1</LimitMaxError>
+        <LimitMaxError>0</LimitMaxError>
         </result>
         
         <result>
@@ -221,7 +245,7 @@ $xmlOutput = $xmlOutput + "<result>
         <value>$WarningCount</value>
         <unit>Count</unit>
         <limitmode>1</limitmode>
-        <LimitMaxWarning>0.1</LimitMaxWarning>
+        <LimitMaxWarning>0</LimitMaxWarning>
         </result>"   
         
 
