@@ -10,7 +10,7 @@
     Copy this script to the PRTG probe EXEXML scripts folder (${env:ProgramFiles(x86)}\PRTG Network Monitor\Custom Sensors\EXEXML)
     and create a "EXE/Script Advanced. Choose this script from the dropdown and set at least:
 
-    + Parameters: VCenter, Username, Password
+    + Parameters: VCenter, User, Password (or Windows Auth without User and Password)
     + Scanning Interval: minimum 5 minutes
 
     .PARAMETER ViServer
@@ -56,9 +56,9 @@
 #>
 param(
     [Parameter(Mandatory)] [string]$ViServer = $null,
-    [Parameter(Mandatory)] [string]$User = $null,
-    [Parameter(Mandatory)] [string]$Password = $null,
-    [string]$IgnorePattern = "", #VMs to ignore
+    [string]$User = '',
+    [string]$Password = '',
+    [string]$IgnorePattern = '', #VMs to ignore
     [int]$WarningHours = 24,
     [int]$ErrorHours = 48,
     [int]$WarningSize = 10,  #in GB
@@ -67,7 +67,10 @@ param(
 
 #Catch all unhandled Errors
 trap{
-    $null = Disconnect-VIServer -Server $ViServer -Confirm:$false -ErrorAction SilentlyContinue
+    if(Get-Module -ListAvailable -Name "VMware.VimAutomation.Core")
+        {
+        $null = Disconnect-VIServer -Server $ViServer -Confirm:$false -ErrorAction SilentlyContinue
+        }
     $Output = "line:$($_.InvocationInfo.ScriptLineNumber.ToString()) char:$($_.InvocationInfo.OffsetInLine.ToString()) --- message: $($_.Exception.Message.ToString()) --- line: $($_.InvocationInfo.Line.ToString()) "
     $Output = $Output.Replace("<","")
     $Output = $Output.Replace(">","")
@@ -108,10 +111,8 @@ $ErrorActionPreference = "Stop"
 
 
 # Import VMware PowerCLI module
-$ViModule = "VMware.VimAutomation.Core"
-
 try {
-    Import-Module $ViModule -ErrorAction Stop
+    Import-Module "VMware.VimAutomation.Core" -ErrorAction Stop
 } catch {
     Write-Output "<prtg>"
     Write-Output " <error>1</error>"
@@ -142,7 +143,16 @@ Set-PowerCLIConfiguration -InvalidCertificateAction ignore -confirm:$false | Out
 
 # Connect to vCenter
 try {
-    Connect-VIServer -Server $ViServer -User $User -Password $Password -ErrorAction Stop | Out-Null
+    if(($User -ne "") -and ($Password -ne ""))
+        {
+        Connect-VIServer -Server $ViServer -User $User -Password $Password
+        }
+    else
+        {
+        Connect-VIServer -Server $ViServer
+        }
+
+
 } catch {
     Write-Output "<prtg>"
     Write-Output " <error>1</error>"
@@ -153,7 +163,7 @@ try {
 
 # Get a list of all VMs
 try {
-    $VMs = Get-VM -ErrorAction Stop
+    $VMs = Get-VM
 
 } catch {
     Write-Output "<prtg>"
