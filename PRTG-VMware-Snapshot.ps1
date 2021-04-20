@@ -97,8 +97,8 @@ exit $lastexitcode
 }
 
 
-#write-host "Main script body"
-
+write-host "$($args)"
+write-host "$($myInvocation.Line)"
 #############################################################################
 #End
 #############################################################################    
@@ -123,16 +123,16 @@ try {
 
 # Parameter empty = 999
 # if you don´t need Size or Hours just leave it empty
-if($WarningHours -eq ""){
+if(($WarningHours -eq "") -and ($WarningHours -ne 0)){
     $WarningHours = 999
     }
-if($ErrorHours -eq ""){
+if(($ErrorHours -eq "") -and ($ErrorHours -ne 0)){
     $ErrorHours = 999
     }
-if($WarningSize -eq ""){
+if(($WarningSize -eq "") -and ($WarningSize -ne 0)){
     $WarningSize = 999
     }
-if($ErrorSize -eq ""){
+if(($ErrorSize -eq "") -and ($ErrorSize -ne 0)){
     $ErrorSize = 999
     }
 
@@ -205,15 +205,14 @@ $AllCount = $AllSnaps.Count
 foreach ($Snap in $AllSnaps){
     if(($Snap.Size -ge $ErrorSize) -or ($Snap.Created -le (get-date).AddHours(-$ErrorHours)))
         {
-        $ErrorVMs += "VM=$($Snap.VM) Created=$(($snap.Created).ToString("yy-MM-dd_HH-mm")) Size=$([math]::Round(($Snap.SizeGB),2))GB; "
+        $ErrorVMs += "VM=$($Snap.VM) Created=$(Get-Date -Date $snap.Created -Format "yy.MM.dd-HH:mm") Size=$([math]::Round(($Snap.SizeGB),2))GB; "
         $ErrorCount +=1
         }
     elseif(($Snap.Size -ge $WarningSize) -or ($Snap.Created -le (get-date).AddHours(-$WarningHours)))
         {
-        $WarningVMs  += "VM=$($Snap.VM) Created=$(($snap.Created).ToString("yy-MM-dd_HH-mm")) Size=$([math]::Round(($Snap.SizeGB),2))GB; " 
+        $WarningVMs  += "VM=$($Snap.VM) Created=$(Get-Date -Date $snap.Created -Format "yy.MM.dd-HH:mm") Size=$([math]::Round(($Snap.SizeGB),2))GB; " 
         $WarningCount +=1
         }
-       
 }
 
 
