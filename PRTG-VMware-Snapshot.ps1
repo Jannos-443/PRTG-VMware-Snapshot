@@ -45,7 +45,7 @@
     
     .EXAMPLE
     Sample call from PRTG EXE/Script Advanced
-    PSx64.exe -f="PRTG-VMware-Snapshot.ps1" -p="%VCenter%" "%Username%" "%PW%"
+    PRTG-VMware-Snapshot.ps1 -ViServer '%VCenter%' -User '%Username%' -Password '%PW%'
 
     .NOTES
     This script is based on the sample by Paessler (https://kb.paessler.com/en/topic/67869-auto-starting-services) and debold (https://github.com/debold/PRTG-WindowsServices)
