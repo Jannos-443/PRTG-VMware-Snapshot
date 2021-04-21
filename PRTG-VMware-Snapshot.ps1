@@ -55,7 +55,7 @@
 
 #>
 param(
-    [Parameter(Mandatory)] [string]$ViServer = $null,
+    [string]$ViServer = '',
     [string]$User = '',
     [string]$Password = '',
     [string]$IgnorePattern = '', #VMs to ignore
@@ -136,7 +136,10 @@ if(($ErrorSize -eq "") -and ($ErrorSize -ne 0)){
 
 
 # Ignore certificate warnings
-Set-PowerCLIConfiguration -InvalidCertificateAction ignore -confirm:$false | Out-Null
+Set-PowerCLIConfiguration -InvalidCertificateAction ignore -Confirm:$false | Out-Null
+
+# Disable CEIP
+Set-PowerCLIConfiguration -ParticipateInCeip $false -Scope User -Confirm:$false | Out-Null
 
 
 # Connect to vCenter
