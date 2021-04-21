@@ -10,7 +10,7 @@
     Copy this script to the PRTG probe EXEXML scripts folder (${env:ProgramFiles(x86)}\PRTG Network Monitor\Custom Sensors\EXEXML)
     and create a "EXE/Script Advanced. Choose this script from the dropdown and set at least:
 
-    + Parameters: VCenter, User, Password (or Windows Auth without User and Password)
+    + Parameters: VCenter, User, Password
     + Scanning Interval: minimum 5 minutes
 
     .PARAMETER ViServer
@@ -67,7 +67,7 @@ param(
 
 #Catch all unhandled Errors
 trap{
-    if(Get-Module -ListAvailable -Name "VMware.VimAutomation.Core")
+    if($connected)
         {
         $null = Disconnect-VIServer -Server $ViServer -Confirm:$false -ErrorAction SilentlyContinue
         }
@@ -96,13 +96,11 @@ if ($env:PROCESSOR_ARCHITEW6432 -eq "AMD64") {
 exit $lastexitcode
 }
 
-
-write-host "$($args)"
-write-host "$($myInvocation.Line)"
 #############################################################################
 #End
 #############################################################################    
 
+$connected = $false
 $WarningVMs = ""
 $ErrorVMs = ""
 
@@ -143,23 +141,19 @@ Set-PowerCLIConfiguration -InvalidCertificateAction ignore -confirm:$false | Out
 
 # Connect to vCenter
 try {
-    if(($User -ne "") -and ($Password -ne ""))
-        {
-        Connect-VIServer -Server $ViServer -User $User -Password $Password
-        }
-    else
-        {
-        Connect-VIServer -Server $ViServer
-        }
-
-
-} catch {
+    Connect-VIServer -Server $ViServer -User $User -Password $Password
+            
+    $connected = $true
+    }
+ 
+catch
+    {
     Write-Output "<prtg>"
     Write-Output " <error>1</error>"
     Write-Output " <text>Could not connect to vCenter server $ViServer. Error: $($_.Exception.Message)</text>"
     Write-Output "</prtg>"
     Exit
-}
+    }
 
 # Get a list of all VMs
 try {
@@ -219,6 +213,7 @@ foreach ($Snap in $AllSnaps){
 # Disconnect from vCenter
 Disconnect-VIServer -Server $ViServer -Confirm:$false
 
+$connected = $false
 
 # Results
 $xmlOutput = '<prtg>'
