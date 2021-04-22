@@ -136,7 +136,7 @@ if(($ErrorSize -eq "") -and ($ErrorSize -ne 0)){
 
 
 # Ignore certificate warnings
-Set-PowerCLIConfiguration -InvalidCertificateAction ignore -Confirm:$false | Out-Null
+Set-PowerCLIConfiguration -InvalidCertificateAction ignore -Scope User -Confirm:$false | Out-Null
 
 # Disable CEIP
 Set-PowerCLIConfiguration -ParticipateInCeip $false -Scope User -Confirm:$false | Out-Null
