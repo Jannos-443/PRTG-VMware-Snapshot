@@ -200,14 +200,15 @@ $ErrorCount = 0
 $AllCount = $AllSnaps.Count
 
 foreach ($Snap in $AllSnaps){
-    if(($Snap.Size -ge $ErrorSize) -or ($Snap.Created -le (get-date).AddHours(-$ErrorHours)))
+    $date = $snap.created -as [DateTime]
+    if(($Snap.Size -ge $ErrorSize) -or ($date -le (get-date).AddHours(-$ErrorHours)))
         {
-        $ErrorVMs += "VM=$($Snap.VM) Created=$(Get-Date -Date $snap.Created -Format "yy.MM.dd-HH:mm") Size=$([math]::Round(($Snap.SizeGB),2))GB; "
+        $ErrorVMs += "VM=$($Snap.VM) Created=$(Get-Date -Date $date -Format "yy.MM.dd-HH:mm") Size=$([math]::Round(($Snap.SizeGB),2))GB; "
         $ErrorCount +=1
         }
-    elseif(($Snap.Size -ge $WarningSize) -or ($Snap.Created -le (get-date).AddHours(-$WarningHours)))
+    elseif(($Snap.Size -ge $WarningSize) -or ($date -le (get-date).AddHours(-$WarningHours)))
         {
-        $WarningVMs  += "VM=$($Snap.VM) Created=$(Get-Date -Date $snap.Created -Format "yy.MM.dd-HH:mm") Size=$([math]::Round(($Snap.SizeGB),2))GB; " 
+        $WarningVMs  += "VM=$($Snap.VM) Created=$(Get-Date -Date $date -Format "yy.MM.dd-HH:mm") Size=$([math]::Round(($Snap.SizeGB),2))GB; " 
         $WarningCount +=1
         }
 }
