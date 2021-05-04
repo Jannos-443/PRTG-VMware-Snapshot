@@ -201,14 +201,18 @@ $AllCount = $AllSnaps.Count
 
 foreach ($Snap in $AllSnaps){
     $date = $snap.created -as [DateTime]
+    $dateoutput = (Get-Date -Date $date -Format "yy.MM.dd-HH:mm").ToString()
+    $size = [math]::Round(($Snap.SizeGB),2)
+    $name = ($Snap.VM).ToString()
+
     if(($Snap.Size -ge $ErrorSize) -or ($date -le (get-date).AddHours(-$ErrorHours)))
         {
-        $ErrorVMs += "VM=$($Snap.VM) Created=$(Get-Date -Date $date -Format "yy.MM.dd-HH:mm") Size=$([math]::Round(($Snap.SizeGB),2))GB; "
+        $ErrorVMs += "VM=$($name) Created=$($dateoutput) Size=$($size)GB; "
         $ErrorCount +=1
         }
     elseif(($Snap.Size -ge $WarningSize) -or ($date -le (get-date).AddHours(-$WarningHours)))
         {
-        $WarningVMs  += "VM=$($Snap.VM) Created=$(Get-Date -Date $date -Format "yy.MM.dd-HH:mm") Size=$([math]::Round(($Snap.SizeGB),2))GB; " 
+        $WarningVMs  += "VM=$($name) Created=$($dateoutput) Size=$($size)GB; " 
         $WarningCount +=1
         }
 }
