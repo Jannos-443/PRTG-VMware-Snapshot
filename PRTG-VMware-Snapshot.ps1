@@ -175,10 +175,11 @@ try {
 $AllSnaps = New-Object -TypeName "System.Collections.ArrayList"
 foreach ($VM in $VMs) {
     $Snaps = Get-Snapshot -VM $VM -ErrorAction SilentlyContinue
-    if ($Snaps -ne $null ) {
+    foreach($Snap in $Snaps)
+        {
         # Save VM names for later use
-        $null = $AllSnaps.Add($Snaps)
-    }
+        $null = $AllSnaps.Add($Snap)
+        }
 }
 
 #Filter Snapshots
