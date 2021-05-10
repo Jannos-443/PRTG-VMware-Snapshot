@@ -25,7 +25,7 @@
     .PARAMETER IgnorePattern
     Regular expression to describe the VM Name for Example "Test" to exclude every VM with Test in the name
 
-    Example: ^(DemoTestServer|DemoAusname2)$
+    Example: ^(DemoTestServer|Demo2-VM)$
 
     Example2: ^(Test123.*|Test555)$ excludes Test123, Test1234, Test12345 and Test555
 
@@ -45,7 +45,7 @@
     
     .EXAMPLE
     Sample call from PRTG EXE/Script Advanced
-    PRTG-VMware-Snapshot.ps1 -ViServer '%VCenter%' -User '%Username%' -Password '%PW%'
+    PRTG-VMware-Snapshot.ps1 -ViServer '%VCenter%' -User '%Username%' -Password '%PW%' -IgnorePattern '^(TestVM.*)$'
 
     .NOTES
     This script is based on the sample by Paessler (https://kb.paessler.com/en/topic/67869-auto-starting-services) and debold (https://github.com/debold/PRTG-WindowsServices)
