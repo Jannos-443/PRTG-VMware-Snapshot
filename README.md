@@ -38,18 +38,16 @@ This Sensor Monitors Snapshots with specific Age or Size.
 
 
 ## Examples
+Example Call: 
+
+`PRTG-VMware-Snapshot.ps1 -ViServer '%VCenter%' -User '%Username%' -Password '%PW%' -IgnorePattern '^(TestVM.*)$'`
+
 ![PRTG-VMware-Snapshot](media/test.png)
 
 
 VM exceptions
 ------------------
 You can either use the **parameter $IgnorePattern** to exclude a VM on sensor basis, or set the **variable $IgnoreScript** within the script. Both variables take a regular expression as input to provide maximum flexibility. These regexes are then evaluated againt the **VM Name**
-
-By default, the $IgnoreScript varialbe looks like this:
-
-```powershell
-$IgnoreScript = '^(VMTest123|TestExcludeWildcard.*)$'
-```
 
 For more information about regular expressions in PowerShell, visit [Microsoft Docs](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_regular_expressions).
 
