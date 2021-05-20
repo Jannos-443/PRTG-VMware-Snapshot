@@ -42,7 +42,13 @@
 
     .PARAMETER ErrorSize
     Errorlimit for Snapshot Size
-    
+
+    .PARAMETER ExcludeFolder
+    Regular expression to describe a VMWare Folder to exclude
+
+    .PARAMETER ExcludeRessource
+    Regular expression to describe a VMWare Ressource to exclude.
+
     .EXAMPLE
     Sample call from PRTG EXE/Script Advanced
     PRTG-VMware-Snapshot.ps1 -ViServer '%VCenter%' -User '%Username%' -Password '%PW%' -IgnorePattern '^(TestVM.*)$'
@@ -59,6 +65,8 @@ param(
     [string]$User = '',
     [string]$Password = '',
     [string]$IgnorePattern = '', #VMs to ignore
+    [string]$ExcludeFolder = '',
+    [string]$ExcludeRessource = '',
     [int]$WarningHours = 24,
     [int]$ErrorHours = 48,
     [int]$WarningSize = 10,  #in GB
@@ -174,6 +182,17 @@ try {
 # Get Snapshots from every VM
 $AllSnaps = New-Object -TypeName "System.Collections.ArrayList"
 foreach ($VM in $VMs) {
+    #Excludes
+    if($ExcludeFolder -match $VM.Folder.Name)
+        {
+        break
+        }
+
+    if($ExcludeRessource -match $VM.ResourcePool.Name)
+        {
+        break
+        }
+
     $Snaps = Get-Snapshot -VM $VM -ErrorAction SilentlyContinue
     foreach($Snap in $Snaps)
         {
