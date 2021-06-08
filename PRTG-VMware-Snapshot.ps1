@@ -142,13 +142,20 @@ if(($ErrorSize -eq "") -and ($ErrorSize -ne 0)){
     $ErrorSize = 999
     }
 
+# PowerCLI Configuration Settings
+try
+    {
+    #Ignore certificate warnings
+    Set-PowerCLIConfiguration -InvalidCertificateAction ignore -Scope User -Confirm:$false | Out-Null
 
-# Ignore certificate warnings
-Set-PowerCLIConfiguration -InvalidCertificateAction ignore -Scope User -Confirm:$false | Out-Null
+    #Disable CEIP
+    Set-PowerCLIConfiguration -ParticipateInCeip $false -Scope User -Confirm:$false | Out-Null
+    }
 
-# Disable CEIP
-Set-PowerCLIConfiguration -ParticipateInCeip $false -Scope User -Confirm:$false | Out-Null
-
+catch
+    {
+    Write-Host "Error in Set-PowerCLIConfiguration but we will ignore it." #Error when another Script is currently accessing it.
+    }
 
 # Connect to vCenter
 try {
@@ -208,11 +215,11 @@ $IgnoreScript = '^(TestIgnore)$'
 
 #Remove Ignored VMs
 if ($IgnorePattern -ne "") {
-    $AllSnaps = $AllSnaps | where {$_.VM -notmatch $IgnorePattern}  
+    $AllSnaps = $AllSnaps | Where-Object {$_.VM -notmatch $IgnorePattern}  
 }
 
 if ($IgnoreScript -ne "") {
-    $AllSnaps = $AllSnaps | where {$_.VM -notmatch $IgnoreScript}  
+    $AllSnaps = $AllSnaps | Where-Object {$_.VM -notmatch $IgnoreScript}  
 }
 
 $WarningCount = 0
