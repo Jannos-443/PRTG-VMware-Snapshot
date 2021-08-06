@@ -40,7 +40,7 @@ This Sensor Monitors Snapshots with specific Age or Size.
 ## Examples
 Example Call: 
 
-`PRTG-VMware-Snapshot.ps1 -ViServer '%VCenter%' -User '%Username%' -Password '%PW%' -IgnorePattern '^(TestVM.*)$'`
+`PRTG-VMware-Snapshot.ps1 -ViServer 'yourVCenter' -User 'yourUser' -Password 'yourPassword' -IgnorePattern '^(TestVM.*)$'`
 
 ![PRTG-VMware-Snapshot](media/test.png)
 
