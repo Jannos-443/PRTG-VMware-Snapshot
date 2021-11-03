@@ -101,7 +101,7 @@ if ($env:PROCESSOR_ARCHITEW6432 -eq "AMD64") {
     }else{
         &"$env:WINDIR\sysnative\windowspowershell\v1.0\powershell.exe" -NonInteractive -NoProfile -file "$($myInvocation.InvocationName)" $args
     }
-exit $lastexitcode
+Exit
 }
 
 #############################################################################
@@ -228,7 +228,7 @@ $AllCount = $AllSnaps.Count
 
 foreach ($Snap in $AllSnaps){
     $date = $snap.created -as [DateTime]
-    $dateoutput = (Get-Date -Date $date -Format "yy.MM.dd-HH:mm").ToString()
+    $dateoutput = (Get-Date -Date $date -Format "dd.MM.yy-HH:mm").ToString()
     $size = [math]::Round(($Snap.SizeGB),2)
     $name = ($Snap.VM).ToString()
 
