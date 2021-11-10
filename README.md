@@ -28,7 +28,7 @@ This Sensor Monitors Snapshots with specific Age or Size.
 
    | Settings | Value |
    | --- | --- |
-   | EXE/Script | PRTG-VMware-Snapshot.ps1 |
+   | EXE/Script Advanced | PRTG-VMware-Snapshot.ps1 |
    | Parameters | -ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' |
    | Scanning Interval | 10 minutes |
 
