@@ -82,6 +82,7 @@ trap{
     $Output = "line:$($_.InvocationInfo.ScriptLineNumber.ToString()) char:$($_.InvocationInfo.OffsetInLine.ToString()) --- message: $($_.Exception.Message.ToString()) --- line: $($_.InvocationInfo.Line.ToString()) "
     $Output = $Output.Replace("<","")
     $Output = $Output.Replace(">","")
+    $Output = $Output.Replace("#","")
     Write-Output "<prtg>"
     Write-Output "<error>1</error>"
     Write-Output "<text>$Output</text>"
@@ -154,7 +155,7 @@ try
 
 catch
     {
-    Write-Host "Error in Set-PowerCLIConfiguration but we will ignore it." #Error when another Script is currently accessing it.
+    Write-Output "Error in Set-PowerCLIConfiguration but we will ignore it." #Error when another Script is currently accessing it.
     }
 
 # Connect to vCenter
@@ -167,8 +168,8 @@ try {
 catch
     {
     Write-Output "<prtg>"
-    Write-Output " <error>1</error>"
-    Write-Output " <text>Could not connect to vCenter server $ViServer. Error: $($_.Exception.Message)</text>"
+    Write-Output "<error>1</error>"
+    Write-Output "<text>Could not connect to vCenter server $ViServer. Error: $($_.Exception.Message)</text>"
     Write-Output "</prtg>"
     Exit
     }
@@ -179,8 +180,8 @@ try {
 
 } catch {
     Write-Output "<prtg>"
-    Write-Output " <error>1</error>"
-    Write-Output " <text>Could not Get-VM. Error: $($_.Exception.Message)</text>"
+    Write-Output "<error>1</error>"
+    Write-Output "<text>Could not Get-VM. Error: $($_.Exception.Message)</text>"
     Write-Output "</prtg>"
     Exit
 }
@@ -292,4 +293,4 @@ $xmlOutput = $xmlOutput + "<result>
 
 $xmlOutput = $xmlOutput + "</prtg>"
 
-$xmlOutput
+Write-Output $xmlOutput
