@@ -47,8 +47,6 @@ You can Exclude/Include the following things:
 
 ## Examples
 
-![PRTG-VMware-Snapshot](media/test.png)
-
 Exclude all VMs with Names that start with "TestVM":
 
 `-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeVMName '^(TestVM.*)$'`
@@ -64,6 +62,10 @@ Excude all VMs in the Folder "Test":
 ONLY Monitor VMs in the Folder "Test2":
 
 `-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -IncludeFolder '^(Test2)$'`
+
+![PRTG-VMware-Snapshot](media/ok.png)
+
+![PRTG-VMware-Snapshot](media/error.png)
 
 ## Includes/Excludes
 
