@@ -47,15 +47,23 @@ You can Exclude/Include the following things:
 
 ## Examples
 
-Exclude all VMs with Names that start with "TestVM": `-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeVMName '^(TestVM.*)$'`
-
 ![PRTG-VMware-Snapshot](media/test.png)
 
-Exclude all VMs on the VMHost "ESXI-Test": `-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeVMHost '^(ESXI-Test.contoso.com)$'`
+Exclude all VMs with Names that start with "TestVM":
 
-Excude all VMs in the Folder "Test": `-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeFolder '^(Test)$'`
+`-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeVMName '^(TestVM.*)$'`
 
-ONLY Monitor VMs in the Folder "Test2": `-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -IncludeFolder '^(Test2)$'`
+Exclude all VMs on the VMHost "ESXI-Test":
+
+`-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeVMHost '^(ESXI-Test.contoso.com)$'`
+
+Excude all VMs in the Folder "Test":
+
+`-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeFolder '^(Test)$'`
+
+ONLY Monitor VMs in the Folder "Test2":
+
+`-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -IncludeFolder '^(Test2)$'`
 
 ## Includes/Excludes
 
