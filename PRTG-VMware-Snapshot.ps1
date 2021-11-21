@@ -5,7 +5,7 @@
     .DESCRIPTION
     Using VMware PowerCLI this Script checks VMware Snappshot Size and Age
     Exceptions can be made within this script by changing the variable $IgnoreScript. This way, the change applies to all PRTG sensors 
-    based on this script. If exceptions have to be made on a per sensor level, the script parameter $IgnorePattern can be used.
+    based on this script. If exceptions have to be made on a per sensor level, the script parameter $ExcludeVMName can be used.
 
     Copy this script to the PRTG probe EXEXML scripts folder (${env:ProgramFiles(x86)}\PRTG Network Monitor\Custom Sensors\EXEXML)
     and create a "EXE/Script Advanced. Choose this script from the dropdown and set at least:
@@ -21,15 +21,6 @@
 
     .PARAMETER Password
     Provide the VCenter Password
-
-    .PARAMETER IgnorePattern
-    Regular expression to describe the VM Name for Example "Test" to exclude every VM with Test in the name
-
-    Example: ^(DemoTestServer|Demo2-VM)$
-
-    Example2: ^(Test123.*|Test555)$ excludes Test123, Test1234, Test12345 and Test555
-
-    #https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_regular_expressions?view=powershell-7.1
     
     .PARAMETER WarningHours
     Warninglimit for Snapshot Age
@@ -43,15 +34,51 @@
     .PARAMETER ErrorSize
     Errorlimit for Snapshot Size
 
+    .PARAMETER ExcludeVMName
+    Regular expression to describe the VM Name for Example "Test" to exclude every VM with Test in the name
+
+    Example: ^(DemoTestServer|Demo2-VM)$
+
+    Example2: ^(Test123.*|Test555)$ excludes Test123, Test1234, Test12345 and Test555
+
+    #https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_regular_expressions?view=powershell-7.1
+
     .PARAMETER ExcludeFolder
     Regular expression to describe a VMWare Folder to exclude
 
     .PARAMETER ExcludeRessource
     Regular expression to describe a VMWare Ressource to exclude.
 
+    .PARAMETER ExcludeVMHost
+    Regular expression to describe a VMWare VMHost to exclude. (maybe FQDN required)
+
+    .PARAMETER ExcludeSnapDescription
+    Regular expression to describe a VMWare Snapshot Description to exclude.
+
+    .PARAMETER ExcludeSnapName
+    Regular expression to describe a VMWare Snapshot Name to exclude.
+
+    .PARAMETER IncludeVMName
+    Regular expression to describe a VMWare Folder to Include
+
+    .PARAMETER IncludeFolder
+    Regular expression to describe a VMWare Folder to Include
+
+    .PARAMETER IncludeRessource
+    Regular expression to describe a VMWare Ressource to Include.
+
+    .PARAMETER IncludeVMHost
+    Regular expression to describe a VMWare VMHost to Include. (maybe FQDN required)
+
+    .PARAMETER IncludeSnapDescription
+    Regular expression to describe a VMWare Snapshot Description to Include.
+
+    .PARAMETER IncludeSnapName
+    Regular expression to describe a VMWare Snapshot Name to Include.
+
     .EXAMPLE
     Sample call from PRTG EXE/Script Advanced
-    PRTG-VMware-Snapshot.ps1 -ViServer '%VCenter%' -User '%Username%' -Password '%PW%' -IgnorePattern '^(TestVM.*)$'
+    PRTG-VMware-Snapshot.ps1 -ViServer '%VCenter%' -User '%Username%' -Password '%PW%' -ExcludeVMName '^(TestVM.*)$'
 
     .NOTES
     This script is based on the sample by Paessler (https://kb.paessler.com/en/topic/67869-auto-starting-services) and debold (https://github.com/debold/PRTG-WindowsServices)
@@ -64,9 +91,18 @@ param(
     [string]$ViServer = '',
     [string]$User = '',
     [string]$Password = '',
-    [string]$IgnorePattern = '', #VMs to ignore
+    [string]$ExcludeVMName = '',
     [string]$ExcludeFolder = '',
     [string]$ExcludeRessource = '',
+    [string]$ExcludeVMHost = '',
+    [string]$ExcludeSnapDescription = '',
+    [string]$ExcludeSnapName = '',
+    [string]$IncludeVMName = '',
+    [string]$IncludeFolder = '',
+    [string]$IncludeRessource = '',
+    [string]$IncludeVMHost = '',
+    [string]$IncludeSnapDescription = '',
+    [string]$IncludeSnapName = '',
     [int]$WarningHours = 24,
     [int]$ErrorHours = 48,
     [int]$WarningSize = 10,  #in GB
@@ -160,7 +196,7 @@ catch
 
 # Connect to vCenter
 try {
-    Connect-VIServer -Server $ViServer -User $User -Password $Password
+    $null = Connect-VIServer -Server $ViServer -User $User -Password $Password
             
     $connected = $true
     }
@@ -186,21 +222,59 @@ try {
     Exit
 }
 
+# Region: VM Filter (Include/Exclude)
+# hardcoded list that applies to all hosts
+$ExcludeVMNameScript = '^(TestIgnore)$' 
+$IncludeVMNameScript = ''
+
+#VM Name
+if ($ExcludeVMName -ne "") {
+    $VMs = $VMs | Where-Object {$_.Name -notmatch $ExcludeVMName}  
+}
+
+if ($ExcludeVMNameScript -ne "") {
+    $VMs = $VMs | Where-Object {$_.Name -notmatch $ExcludeVMNameScript}  
+}
+
+if ($IncludeVMName -ne "") {
+    $VMs = $VMs | Where-Object {$_.Name -match $IncludeVMName}  
+}
+
+if ($IncludeVMNameScript -ne "") {
+    $VMs = $VMs | Where-Object {$_.Name -match $IncludeVMNameScript}  
+}
+
+#VM Folder
+if ($ExcludeFolder -ne "") {
+    $VMs = $VMs | Where-Object {$_.Folder.Name -notmatch $ExcludeFolder}  
+}
+
+if ($IncludeFolder -ne "") {
+    $VMs = $VMs | Where-Object {$_.Folder.Name -match $IncludeFolder}  
+}
+
+#VM Resource
+if ($ExcludeRessource -ne "") {
+    $VMs = $VMs | Where-Object {$_.ResourcePool.Name -notmatch $ExcludeRessource}  
+}
+
+if ($IncludeRessource -ne "") {
+    $VMs = $VMs | Where-Object {$_.ResourcePool.Name -match $IncludeRessource}  
+}
+
+#VM Host
+if ($ExcludeVMHost -ne "") {
+    $VMs = $VMs | Where-Object {$_.VMHost.Name -notmatch $ExcludeVMHost}  
+}
+
+if ($IncludeVMHost -ne "") {
+    $VMs = $VMs | Where-Object {$_.VMHost.Name -match $IncludeVMHost}  
+}
+#End Region VM Filter
 
 # Get Snapshots from every VM
 $AllSnaps = New-Object -TypeName "System.Collections.ArrayList"
 foreach ($VM in $VMs) {
-    #Excludes
-    if($ExcludeFolder -match $VM.Folder.Name)
-        {
-        break
-        }
-
-    if($ExcludeRessource -match $VM.ResourcePool.Name)
-        {
-        break
-        }
-
     $Snaps = Get-Snapshot -VM $VM -ErrorAction SilentlyContinue
     foreach($Snap in $Snaps)
         {
@@ -209,19 +283,25 @@ foreach ($VM in $VMs) {
         }
 }
 
-#Filter Snapshots
-
-# hardcoded list that applies to all hosts
-$IgnoreScript = '^(TestIgnore)$' 
-
-#Remove Ignored VMs
-if ($IgnorePattern -ne "") {
-    $AllSnaps = $AllSnaps | Where-Object {$_.VM -notmatch $IgnorePattern}  
+# Snapshot filter (include/exclude)
+# Snapshot Name
+if ($ExcludeSnapName -ne "") {
+    $AllSnaps = $AllSnaps | Where-Object {$_.Name -notmatch $ExcludeSnapName}  
 }
 
-if ($IgnoreScript -ne "") {
-    $AllSnaps = $AllSnaps | Where-Object {$_.VM -notmatch $IgnoreScript}  
+if ($IncludeSnapName -ne "") {
+    $AllSnaps = $AllSnaps | Where-Object {$_.Name -match $IncludeSnapName}  
 }
+
+# Snapshot Description
+if ($ExcludeSnapDescription -ne "") {
+    $AllSnaps = $AllSnaps | Where-Object {$_.Description -notmatch $ExcludeSnapDescription}  
+}
+
+if ($IncludeSnapDescription -ne "") {
+    $AllSnaps = $AllSnaps | Where-Object {$_.Description -match $IncludeSnapDescription}  
+}
+
 
 $WarningCount = 0
 $ErrorCount = 0
@@ -247,7 +327,7 @@ foreach ($Snap in $AllSnaps){
 
 
 # Disconnect from vCenter
-Disconnect-VIServer -Server $ViServer -Confirm:$false
+$null = Disconnect-VIServer -Server $ViServer -Confirm:$false
 
 $connected = $false
 

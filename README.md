@@ -16,13 +16,21 @@ This Sensor Monitors Snapshots with specific Age or Size.
 | WarningSize | 10 (GB) |
 | ErrorSize | 20 (GB) |
 
+You can Exclude/Include the following things:
+ - VMName
+ - VMFolder
+ - VMRessource
+ - VMHost
+ - SnapshotName
+ - SnapshotDescription
+
 ## HOW TO
 
 1. Make sure the VMware PowerCLI Module exists on the Probe under the Powershell Module Path
    - `C:\Program Files\WindowsPowerShell\Modules\VMware.VimAutomation.Core`
 
 
-2. Place `PRTG-VMware-Snapshot-Age.ps1` under `C:\Program Files (x86)\PRTG Network Monitor\Custom Sensors\EXEXML`
+2. Place `PRTG-VMware-Snapshot.ps1` under `C:\Program Files (x86)\PRTG Network Monitor\Custom Sensors\EXEXML`
 
 3. Create new Sensor
 
@@ -38,16 +46,21 @@ This Sensor Monitors Snapshots with specific Age or Size.
 
 
 ## Examples
-Example Call: 
 
-`PRTG-VMware-Snapshot.ps1 -ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -IgnorePattern '^(TestVM.*)$'`
+Exclude all VMs with Names that start with "TestVM": `-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeVMName '^(TestVM.*)$'`
 
 ![PRTG-VMware-Snapshot](media/test.png)
 
+Exclude all VMs on the VMHost "ESXI-Test": `-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeVMHost '^(ESXI-Test.contoso.com)$'`
 
-VM exceptions
-------------------
-You can either use the **parameter $IgnorePattern** to exclude a VM on sensor basis, or set the **variable $IgnoreScript** within the script. Both variables take a regular expression as input to provide maximum flexibility. These regexes are then evaluated againt the **VM Name**
+Excude all VMs in the Folder "Test": `-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeFolder '^(Test)$'`
+
+ONLY Monitor VMs in the Folder "Test2": `-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -IncludeFolder '^(Test2)$'`
+
+## Includes/Excludes
+
+You can use the variables to exclude/include VM(s)/Snapshots(s) 
+The variables take a regular expression as input to provide maximum flexibility.
 
 For more information about regular expressions in PowerShell, visit [Microsoft Docs](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_regular_expressions).
 
