@@ -7,7 +7,7 @@ Jannos-443
 
 ## Project Details
 
-This Sensor Monitors Snapshots with specific Age or Size.
+This sensor Monitors Snapshots with specific Age or Size.
 
 | Parameter | Default Value |
 | --- | --- |
@@ -16,7 +16,7 @@ This Sensor Monitors Snapshots with specific Age or Size.
 | WarningSize | 10 (GB) |
 | ErrorSize | 20 (GB) |
 
-You can Exclude/Include the following things:
+You can exclude/include the following properties:
  - VMName
  - VMFolder
  - VMRessource
@@ -32,7 +32,7 @@ You can Exclude/Include the following things:
 
 2. Place `PRTG-VMware-Snapshot.ps1` under `C:\Program Files (x86)\PRTG Network Monitor\Custom Sensors\EXEXML`
 
-3. Create new Sensor
+3. Create new sensor
 
    | Settings | Value |
    | --- | --- |
@@ -41,7 +41,7 @@ You can Exclude/Include the following things:
    | Scanning Interval | 10 minutes |
 
 
-4. Set the "$IgnorePattern" or "$IgnoreScript" parameter to Exclude VMs
+4. Set the "$IgnorePattern" or "$IgnoreScript" parameter to exclude VMs
 
 
 
@@ -55,11 +55,15 @@ Exclude all VMs on the VMHost "ESXI-Test":
 
 `-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeVMHost '^(ESXI-Test.contoso.com)$'`
 
-Excude all VMs in the Folder "Test":
+Excude all VMs in the folder "Test":
 
 `-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeFolder '^(Test)$'`
 
-ONLY Monitor VMs in the Folder "Test2":
+Excude all VMs in the folders "Test" AND "unimportant":
+
+`-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeFolder '^(Test|unimportant)$'`
+
+ONLY monitor VMs in the folder "Test2":
 
 `-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -IncludeFolder '^(Test2)$'`
 
