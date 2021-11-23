@@ -131,19 +131,33 @@ trap{
 #If Powershell is running the 32-bit version on a 64-bit machine, we 
 #need to force powershell to run in 64-bit mode .
 #############################################################################
-if ($env:PROCESSOR_ARCHITEW6432 -eq "AMD64") {
-    #Write-warning  "Y'arg Matey, we're off to 64-bit land....."
-    if ($myInvocation.Line) {
-        &"$env:WINDIR\sysnative\windowspowershell\v1.0\powershell.exe" -NonInteractive -NoProfile $myInvocation.Line
-    }else{
-        &"$env:WINDIR\sysnative\windowspowershell\v1.0\powershell.exe" -NonInteractive -NoProfile -file "$($myInvocation.InvocationName)" $args
+if ($env:PROCESSOR_ARCHITEW6432 -eq "AMD64") 
+    {
+    if ($myInvocation.Line) 
+        {
+        [string]$output = &"$env:WINDIR\sysnative\windowspowershell\v1.0\powershell.exe" -NonInteractive -NoProfile $myInvocation.Line
+        }
+    else
+        {
+        [string]$output = &"$env:WINDIR\sysnative\windowspowershell\v1.0\powershell.exe" -NonInteractive -NoProfile -file "$($myInvocation.InvocationName)" $args
+        }
+
+    #Remove any text after </prtg>
+    try{
+        $output = $output.Substring(0,$output.LastIndexOf("</prtg>")+7)
+        }
+
+    catch
+        {
+        }
+
+    Write-Output $output
+    exit
     }
-Exit
-}
 
 #############################################################################
 #End
-#############################################################################    
+#############################################################################   
 
 $connected = $false
 $WarningVMs = ""
@@ -165,7 +179,7 @@ try {
 }
 
 # Parameter empty = 999
-# if you don´t need Size or Hours just leave it empty
+# if you dont need size or hours just leave it empty
 if(($WarningHours -eq "") -and ($WarningHours -ne 0)){
     $WarningHours = 999
     }
