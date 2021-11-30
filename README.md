@@ -1,13 +1,25 @@
-# PRTG-VMware-Snapshot
-# About
+# PRTG-VMware-Snapshot.PS1
 
-## Project Owner:
+<!-- ABOUT THE PROJECT -->
+### About The Project
+Project Owner: Jannos-443
 
-Jannos-443
+PRTG Powershell Script to monitor VMware Snapshots
 
-## Project Details
+Free and open source: [MIT License](https://github.com/Jannos-443/PRTG-VMware-Snapshot/blob/main/LICENSE)
 
-This sensor Monitors Snapshots with specific Age or Size.
+**Features**
+* Monitor Snapshot Size
+* Monitor Snapshot Age
+* Excludes/Includes
+  * VMName Exclude
+  * VMFolder Exclude
+  * VMRessource Exclude
+  * VMHost Exclude
+  * SnapshotName Exclude 
+  * SnapshotDescription Exclude
+
+
 
 | Parameter | Default Value |
 | --- | --- |
@@ -16,15 +28,9 @@ This sensor Monitors Snapshots with specific Age or Size.
 | WarningSize | 10 (GB) |
 | ErrorSize | 20 (GB) |
 
-You can exclude/include the following properties:
- - VMName
- - VMFolder
- - VMRessource
- - VMHost
- - SnapshotName
- - SnapshotDescription
 
-## HOW TO
+<!-- GETTING STARTED -->
+## Getting Started
 
 1. Make sure the VMware PowerCLI Module exists on the Probe under the Powershell Module Path
    - `C:\Program Files\WindowsPowerShell\Modules\VMware.VimAutomation.Core`
@@ -41,31 +47,38 @@ You can exclude/include the following properties:
    | Scanning Interval | 10 minutes |
 
 
-4. Set the "$IgnorePattern" or "$IgnoreScript" parameter to exclude VMs
+4. Change parameter if needed 
+   - Include/Exclude
+   - Change Limits
 
+## Usage
 
+```powershell
+-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeVMName '^(TestVM.*)$'
+```
+Exclude all VMs with Names that start with "TestVM"
+
+```powershell
+-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeVMHost '^(ESXI-Test.contoso.com)$'
+```
+Exclude all VMs on the VMHost "ESXI-Test"
+
+```powershell
+-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeFolder '^(Test)$'
+```
+Excude all VMs in the folder "Test"
+
+```powershell
+-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeFolder '^(Test|unimportant)$'
+```
+Excude all VMs in the folders "Test" AND "unimportant"
+
+```powershell
+-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -IncludeFolder '^(Test2)$'
+```
+ONLY monitor VMs in the folder "Test2"
 
 ## Examples
-
-Exclude all VMs with Names that start with "TestVM":
-
-`-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeVMName '^(TestVM.*)$'`
-
-Exclude all VMs on the VMHost "ESXI-Test":
-
-`-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeVMHost '^(ESXI-Test.contoso.com)$'`
-
-Excude all VMs in the folder "Test":
-
-`-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeFolder '^(Test)$'`
-
-Excude all VMs in the folders "Test" AND "unimportant":
-
-`-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeFolder '^(Test|unimportant)$'`
-
-ONLY monitor VMs in the folder "Test2":
-
-`-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -IncludeFolder '^(Test2)$'`
 
 ![PRTG-VMware-Snapshot](media/ok.png)
 
