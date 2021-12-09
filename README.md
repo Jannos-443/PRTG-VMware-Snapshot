@@ -12,12 +12,18 @@ Free and open source: [MIT License](https://github.com/Jannos-443/PRTG-VMware-Sn
 * Monitor Snapshot Size
 * Monitor Snapshot Age
 * Excludes/Includes
-  * VMName Exclude
-  * VMFolder Exclude
-  * VMRessource Exclude
-  * VMHost Exclude
-  * SnapshotName Exclude 
-  * SnapshotDescription Exclude
+  * ExcludeVMName
+  * ExcludeFolder
+  * ExcludeRessource
+  * ExcludeVMHost
+  * ExcludeSnapDescription
+  * ExcludeSnapName 
+  * IncludeVMName
+  * IncludeFolder
+  * IncludeRessource
+  * IncludeVMHost
+  * IncludeSnapDescription
+  * IncludeSnapName
 
 
 
