@@ -60,6 +60,16 @@ Free and open source: [MIT License](https://github.com/Jannos-443/PRTG-VMware-Sn
 ## Usage
 
 ```powershell
+-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -WarningHours 72 -ErrorHours 96
+```
+Change default WarningHours limit to 72 hours and ErrorHour limit to 96 hours
+
+```powershell
+-ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -WarningSize 5 -ErrorSize 10
+```
+Change default WarningSize limit to 5 GB and ErrorSize limit to 10 GB 
+
+```powershell
 -ViServer 'yourVCenterFQDN' -User 'yourUser' -Password 'yourPassword' -ExcludeVMName '^(TestVM.*)$'
 ```
 Exclude all VMs with Names that start with "TestVM"
