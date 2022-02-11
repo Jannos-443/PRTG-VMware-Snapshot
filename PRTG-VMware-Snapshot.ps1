@@ -320,6 +320,9 @@ if ($IncludeSnapDescription -ne "") {
 $WarningCount = 0
 $ErrorCount = 0
 $AllCount = $AllSnaps.Count
+$MaxAge = 0
+$MaxSizeMB = 0
+
 
 foreach ($Snap in $AllSnaps){
     $date = $snap.created -as [DateTime]
@@ -327,12 +330,29 @@ foreach ($Snap in $AllSnaps){
     $size = [math]::Round(($Snap.SizeGB),2)
     $name = ($Snap.VM).ToString()
 
-    if(($Snap.SizeGB -ge $ErrorSize) -or ($date -le (get-date).AddHours(-$ErrorHours)))
+    #Max Snap Size
+    $TempSize = [math]::Round(($Snap.SizeMB * 1048576 ),0)
+    if($TempSize -gt $MaxSizeMB)
+        {
+        $MaxSizeMB = $TempSize   
+        }
+
+    #Max Snap Age
+    $TempAge = [math]::Round((((Get-Date) - $date).TotalSeconds),0)
+    if($TempAge -gt $MaxAge)
+        {
+        $MaxAge = $TempAge 
+        }
+
+    #Check Error Limit
+    if(($Snap.SizeGB -ge $ErrorSize) -or ($date -le (Get-Date).AddHours(-$ErrorHours)))
         {
         $ErrorVMs += "VM=$($name) Created=$($dateoutput) Size=$($size)GB; "
         $ErrorCount +=1
         }
-    elseif(($Snap.SizeGB -ge $WarningSize) -or ($date -le (get-date).AddHours(-$WarningHours)))
+
+    #Check Warning Limit
+    elseif(($Snap.SizeGB -ge $WarningSize) -or ($date -le (Get-Date).AddHours(-$WarningHours)))
         {
         $WarningVMs  += "VM=$($name) Created=$($dateoutput) Size=$($size)GB; " 
         $WarningCount +=1
@@ -380,6 +400,18 @@ $xmlOutput = $xmlOutput + "<result>
         <unit>Count</unit>
         <limitmode>1</limitmode>
         <LimitMaxWarning>0</LimitMaxWarning>
+        </result>
+        
+        <result>
+        <channel>oldest Snapshot</channel>
+        <value>$([decimal]$MaxAge)</value>
+        <unit>TimeSeconds</unit>
+        </result>
+        
+        <result>
+        <channel>largest Snapshot</channel>
+        <value>$([decimal]$MaxSizeMB)</value>
+        <unit>BytesDisk</unit>
         </result>"   
         
 
