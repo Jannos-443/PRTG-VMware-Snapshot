@@ -21,6 +21,9 @@
 
     .PARAMETER Password
     Provide the VCenter Password
+
+    .PARAMETER APITOKEN
+    Use as alternative to User and Password, for example for hosted Vmware
     
     .PARAMETER WarningHours
     Warninglimit for Snapshot Age
@@ -88,9 +91,10 @@
 
 #>
 param(
-    [string]$ViServer = '',
+    [string[]]$ViServer = '',
     [string]$User = '',
     [string]$Password = '',
+    [string]$APITOKEN = '',
     [string]$ExcludeVMName = '',
     [string]$ExcludeFolder = '',
     [string]$ExcludeRessource = '',
@@ -105,20 +109,21 @@ param(
     [string]$IncludeSnapName = '',
     [int]$WarningHours = 24,
     [int]$ErrorHours = 48,
-    [int]$WarningSize = 10,  #in GB
+    [int]$WarningSize = 10, #in GB
     [int]$ErrorSize = 20     #in GB
 )
 
 #Catch all unhandled Errors
-trap{
-    if($connected)
-        {
-        $null = Disconnect-VIServer -Server $ViServer -Confirm:$false -ErrorAction SilentlyContinue
+trap {
+    if ($connected) {
+        foreach ($Server in $ViServer) {
+            $null = Disconnect-VIServer -Server $Server -Confirm:$false -ErrorAction SilentlyContinue
         }
+    }
     $Output = "line:$($_.InvocationInfo.ScriptLineNumber.ToString()) char:$($_.InvocationInfo.OffsetInLine.ToString()) --- message: $($_.Exception.Message.ToString()) --- line: $($_.InvocationInfo.Line.ToString()) "
-    $Output = $Output.Replace("<","")
-    $Output = $Output.Replace(">","")
-    $Output = $Output.Replace("#","")
+    $Output = $Output.Replace("<", "")
+    $Output = $Output.Replace(">", "")
+    $Output = $Output.Replace("#", "")
     Write-Output "<prtg>"
     Write-Output "<error>1</error>"
     Write-Output "<text>$Output</text>"
@@ -131,29 +136,25 @@ trap{
 #If Powershell is running the 32-bit version on a 64-bit machine, we 
 #need to force powershell to run in 64-bit mode .
 #############################################################################
-if ($env:PROCESSOR_ARCHITEW6432 -eq "AMD64") 
-    {
-    if ($myInvocation.Line) 
-        {
+if ($env:PROCESSOR_ARCHITEW6432 -eq "AMD64") {
+    if ($myInvocation.Line) {
         [string]$output = &"$env:WINDIR\sysnative\windowspowershell\v1.0\powershell.exe" -NonInteractive -NoProfile $myInvocation.Line
-        }
-    else
-        {
+    }
+    else {
         [string]$output = &"$env:WINDIR\sysnative\windowspowershell\v1.0\powershell.exe" -NonInteractive -NoProfile -file "$($myInvocation.InvocationName)" $args
-        }
+    }
 
     #Remove any text after </prtg>
-    try{
-        $output = $output.Substring(0,$output.LastIndexOf("</prtg>")+7)
-        }
+    try {
+        $output = $output.Substring(0, $output.LastIndexOf("</prtg>") + 7)
+    }
 
-    catch
-        {
-        }
+    catch {
+    }
 
     Write-Output $output
     exit
-    }
+}
 
 #############################################################################
 #End
@@ -162,7 +163,7 @@ if ($env:PROCESSOR_ARCHITEW6432 -eq "AMD64")
 $connected = $false
 $WarningVMs = ""
 $ErrorVMs = ""
-
+$AllSnaps = New-Object -TypeName "System.Collections.ArrayList"
 # Error if there's anything going on
 $ErrorActionPreference = "Stop"
 
@@ -170,7 +171,8 @@ $ErrorActionPreference = "Stop"
 # Import VMware PowerCLI module
 try {
     Import-Module "VMware.VimAutomation.Core" -ErrorAction Stop
-} catch {
+}
+catch {
     Write-Output "<prtg>"
     Write-Output " <error>1</error>"
     Write-Output " <text>Error Loading VMware Powershell Module ($($_.Exception.Message))</text>"
@@ -180,156 +182,150 @@ try {
 
 # Parameter empty = 999
 # if you dont need size or hours just leave it empty
-if(($WarningHours -eq "") -and ($WarningHours -ne 0)){
+if (($WarningHours -eq "") -and ($WarningHours -ne 0)) {
     $WarningHours = 999
-    }
-if(($ErrorHours -eq "") -and ($ErrorHours -ne 0)){
+}
+if (($ErrorHours -eq "") -and ($ErrorHours -ne 0)) {
     $ErrorHours = 999
-    }
-if(($WarningSize -eq "") -and ($WarningSize -ne 0)){
+}
+if (($WarningSize -eq "") -and ($WarningSize -ne 0)) {
     $WarningSize = 999
-    }
-if(($ErrorSize -eq "") -and ($ErrorSize -ne 0)){
+}
+if (($ErrorSize -eq "") -and ($ErrorSize -ne 0)) {
     $ErrorSize = 999
-    }
+}
 
 # PowerCLI Configuration Settings
-try
-    {
+try {
     #Ignore certificate warnings
     Set-PowerCLIConfiguration -InvalidCertificateAction ignore -Scope User -Confirm:$false | Out-Null
 
     #Disable CEIP
     Set-PowerCLIConfiguration -ParticipateInCeip $false -Scope User -Confirm:$false | Out-Null
-    }
+}
 
-catch
-    {
+catch {
     Write-Output "Error in Set-PowerCLIConfiguration but we will ignore it." #Error when another Script is currently accessing it.
-    }
+}
 
 # Connect to vCenter
-try {
-    $null = Connect-VIServer -Server $ViServer -User $User -Password $Password
-            
-    $connected = $true
+foreach ($Server in $ViServer) {
+    try {
+        if ($APITOKEN -ne '') {
+            $oauthCtx = New-VcsOAuthSecurityContext -ApiToken $APITOKEN
+            $samlCtx = New-VISamlSecurityContext -VCenterServer $Server -OAuthSecurityContext $oauthCtx
+            Connect-VIServer -Server $Server -SamlSecurityContext $samlCtx
+        }
+        else {
+            $null = Connect-VIServer -Server $Server -User $User -Password $Password
+        }
+        
+        $connected = $true
     }
  
-catch
-    {
-    Write-Output "<prtg>"
-    Write-Output "<error>1</error>"
-    Write-Output "<text>Could not connect to vCenter server $ViServer. Error: $($_.Exception.Message)</text>"
-    Write-Output "</prtg>"
-    Exit
+    catch {
+        Write-Output "<prtg>"
+        Write-Output "<error>1</error>"
+        Write-Output "<text>Could not connect to vCenter server $($Server). Error: $($_.Exception.Message)</text>"
+        Write-Output "</prtg>"
+        Exit
     }
 
-# Get a list of all VMs
+    # Get a list of all VMs
+    try {
+        $VMs = Get-VM
+    }
+    catch {
+        Write-Output "<prtg>"
+        Write-Output "<error>1</error>"
+        Write-Output "<text>Error in Get-VM. Server: $($Server) Error: $($_.Exception.Message)</text>"
+        Write-Output "</prtg>"
+        Exit
+    }
 
+    # Region: VM Filter (Include/Exclude)
+    # hardcoded list that applies to all hosts
+    $ExcludeVMNameScript = '^(TestIgnore)$' 
+    $IncludeVMNameScript = ''
 
-# Region: VM Filter (Include/Exclude)
-try {
-    $VMHosts = Get-VMHost -State "Connected"
+    #VM Name
+    if ($ExcludeVMName -ne "") {
+        $VMs = $VMs | Where-Object { $_.Name -notmatch $ExcludeVMName }  
+    }
 
-} catch {
-    Write-Output "<prtg>"
-    Write-Output "<error>1</error>"
-    Write-Output "<text>Error in Get-VMHost. Error: $($_.Exception.Message)</text>"
-    Write-Output "</prtg>"
-    Exit
-}
+    if ($ExcludeVMNameScript -ne "") {
+        $VMs = $VMs | Where-Object { $_.Name -notmatch $ExcludeVMNameScript }  
+    }
 
-#VM Host
-if ($ExcludeVMHost -ne "") {
-    #$VMs = $VMs | Where-Object {$_.VMHost.Name -notmatch $ExcludeVMHost}
-    $VMHosts = $VMHosts | Where-Object {$_.Name -notmatch $ExcludeVMHost}
-}
+    if ($IncludeVMName -ne "") {
+        $VMs = $VMs | Where-Object { $_.Name -match $IncludeVMName }  
+    }
 
-if ($IncludeVMHost -ne "") {
-    #$VMs = $VMs | Where-Object {$_.VMHost.Name -match $IncludeVMHost}
-    $VMHosts = $VMHosts | Where-Object {$_.Name -match $IncludeVMHost} 
-}
+    if ($IncludeVMNameScript -ne "") {
+        $VMs = $VMs | Where-Object { $_.Name -match $IncludeVMNameScript }  
+    }
 
-try {
-    $VMs = $VMHosts | Get-VM
+    #VM Folder
+    if ($ExcludeFolder -ne "") {
+        $VMs = $VMs | Where-Object { $_.Folder.Name -notmatch $ExcludeFolder }  
+    }
 
-} catch {
-    Write-Output "<prtg>"
-    Write-Output "<error>1</error>"
-    Write-Output "<text>Error in Get-VM. Error: $($_.Exception.Message)</text>"
-    Write-Output "</prtg>"
-    Exit
-}
+    if ($IncludeFolder -ne "") {
+        $VMs = $VMs | Where-Object { $_.Folder.Name -match $IncludeFolder }  
+    }
 
-# hardcoded list that applies to all hosts
-$ExcludeVMNameScript = '^(TestIgnore)$' 
-$IncludeVMNameScript = ''
+    #VM Resource
+    if ($ExcludeRessource -ne "") {
+        $VMs = $VMs | Where-Object { $_.ResourcePool.Name -notmatch $ExcludeRessource }  
+    }
 
-#VM Name
-if ($ExcludeVMName -ne "") {
-    $VMs = $VMs | Where-Object {$_.Name -notmatch $ExcludeVMName}  
-}
+    if ($IncludeRessource -ne "") {
+        $VMs = $VMs | Where-Object { $_.ResourcePool.Name -match $IncludeRessource }  
+    }
 
-if ($ExcludeVMNameScript -ne "") {
-    $VMs = $VMs | Where-Object {$_.Name -notmatch $ExcludeVMNameScript}  
-}
+    #VM Host
+    if ($ExcludeVMHost -ne "") {
+        $VMs = $VMs | Where-Object { $_.VMHost.Name -notmatch $ExcludeVMHost }  
+    }
 
-if ($IncludeVMName -ne "") {
-    $VMs = $VMs | Where-Object {$_.Name -match $IncludeVMName}  
-}
+    if ($IncludeVMHost -ne "") {
+        $VMs = $VMs | Where-Object { $_.VMHost.Name -match $IncludeVMHost }  
+    }
+    #End Region VM Filter
 
-if ($IncludeVMNameScript -ne "") {
-    $VMs = $VMs | Where-Object {$_.Name -match $IncludeVMNameScript}  
-}
+    # Get Snapshots from every VM
 
-#VM Folder
-if ($ExcludeFolder -ne "") {
-    $VMs = $VMs | Where-Object {$_.Folder.Name -notmatch $ExcludeFolder}  
-}
-
-if ($IncludeFolder -ne "") {
-    $VMs = $VMs | Where-Object {$_.Folder.Name -match $IncludeFolder}  
-}
-
-#VM Resource
-if ($ExcludeRessource -ne "") {
-    $VMs = $VMs | Where-Object {$_.ResourcePool.Name -notmatch $ExcludeRessource}  
-}
-
-if ($IncludeRessource -ne "") {
-    $VMs = $VMs | Where-Object {$_.ResourcePool.Name -match $IncludeRessource}  
-}
-
-#End Region VM Filter
-
-# Get Snapshots from every VM
-$AllSnaps = New-Object -TypeName "System.Collections.ArrayList"
-foreach ($VM in $VMs) {
-    $Snaps = Get-Snapshot -VM $VM -ErrorAction SilentlyContinue
-    foreach($Snap in $Snaps)
-        {
-        # Save VM names for later use
-        $null = $AllSnaps.Add($Snap)
+    foreach ($VM in $VMs) {
+        $Snaps = Get-Snapshot -VM $VM -ErrorAction SilentlyContinue
+        foreach ($Snap in $Snaps) {
+            # Save VM names for later use
+            $null = $AllSnaps.Add($Snap)
         }
+    }
+
+    # Disconnect from vCenter
+    $null = Disconnect-VIServer -Server $Server -Confirm:$false
+    
+    $connected = $false
 }
 
 # Snapshot filter (include/exclude)
 # Snapshot Name
 if ($ExcludeSnapName -ne "") {
-    $AllSnaps = $AllSnaps | Where-Object {$_.Name -notmatch $ExcludeSnapName}  
+    $AllSnaps = $AllSnaps | Where-Object { $_.Name -notmatch $ExcludeSnapName }  
 }
 
 if ($IncludeSnapName -ne "") {
-    $AllSnaps = $AllSnaps | Where-Object {$_.Name -match $IncludeSnapName}  
+    $AllSnaps = $AllSnaps | Where-Object { $_.Name -match $IncludeSnapName }  
 }
 
 # Snapshot Description
 if ($ExcludeSnapDescription -ne "") {
-    $AllSnaps = $AllSnaps | Where-Object {$_.Description -notmatch $ExcludeSnapDescription}  
+    $AllSnaps = $AllSnaps | Where-Object { $_.Description -notmatch $ExcludeSnapDescription }  
 }
 
 if ($IncludeSnapDescription -ne "") {
-    $AllSnaps = $AllSnaps | Where-Object {$_.Description -match $IncludeSnapDescription}  
+    $AllSnaps = $AllSnaps | Where-Object { $_.Description -match $IncludeSnapDescription }  
 }
 
 
@@ -340,58 +336,53 @@ $MaxAge = 0
 $MaxSizeMB = 0
 
 
-foreach ($Snap in $AllSnaps){
+foreach ($Snap in $AllSnaps) {
     $date = $snap.created -as [DateTime]
     $dateoutput = (Get-Date -Date $date -Format "dd.MM.yy-HH:mm").ToString()
-    $size = [math]::Round(($Snap.SizeGB),2)
-    $name = ($Snap.VM).ToString()
-
+    $size = [math]::Round(($Snap.SizeGB), 2)
+    if ($null -eq $Snap.VM) {
+        $name = "None_$($Snap.VMId)"
+    }
+    else {
+        $name = ($Snap.VM).ToString()
+    }
+    
     #Max Snap Size
-    $TempSize = [math]::Round(($Snap.SizeMB * 1048576 ),0)
-    if($TempSize -gt $MaxSizeMB)
-        {
+    $TempSize = [math]::Round(($Snap.SizeMB * 1048576 ), 0)
+    if ($TempSize -gt $MaxSizeMB) {
         $MaxSizeMB = $TempSize   
-        }
+    }
 
     #Max Snap Age
-    $TempAge = [math]::Round((((Get-Date) - $date).TotalSeconds),0)
-    if($TempAge -gt $MaxAge)
-        {
+    $TempAge = [math]::Round((((Get-Date) - $date).TotalSeconds), 0)
+    if ($TempAge -gt $MaxAge) {
         $MaxAge = $TempAge 
-        }
+    }
 
     #Check Error Limit
-    if(($Snap.SizeGB -ge $ErrorSize) -or ($date -le (Get-Date).AddHours(-$ErrorHours)))
-        {
+    if (($Snap.SizeGB -ge $ErrorSize) -or ($date -le (Get-Date).AddHours(-$ErrorHours))) {
         $ErrorVMs += "VM=$($name) Created=$($dateoutput) Size=$($size)GB; "
-        $ErrorCount +=1
-        }
+        $ErrorCount += 1
+    }
 
     #Check Warning Limit
-    elseif(($Snap.SizeGB -ge $WarningSize) -or ($date -le (Get-Date).AddHours(-$WarningHours)))
-        {
-        $WarningVMs  += "VM=$($name) Created=$($dateoutput) Size=$($size)GB; " 
-        $WarningCount +=1
-        }
+    elseif (($Snap.SizeGB -ge $WarningSize) -or ($date -le (Get-Date).AddHours(-$WarningHours))) {
+        $WarningVMs += "VM=$($name) Created=$($dateoutput) Size=$($size)GB; " 
+        $WarningCount += 1
+    }
 }
-
-
-# Disconnect from vCenter
-$null = Disconnect-VIServer -Server $ViServer -Confirm:$false
-
-$connected = $false
 
 # Results
 $xmlOutput = '<prtg>'
 if ($ErrorCount -ge 1) {
     $xmlOutput = $xmlOutput + "<text>Error - $($ErrorVMs)</text>"
-    }
+}
 
-if (($WarningCount -ge 1) -and ($ErrorCount -eq 0)){
+if (($WarningCount -ge 1) -and ($ErrorCount -eq 0)) {
     $xmlOutput = $xmlOutput + "<text>Warning - $($WarningVMs)</text>"
-    } 
+} 
 
-if(($WarningCount -eq 0) -and ($ErrorCount -eq 0)) {
+if (($WarningCount -eq 0) -and ($ErrorCount -eq 0)) {
     $xmlOutput = $xmlOutput + "<text>No Snapshots older $($WarningHours) hours or greater $($WarningSize)GB</text>"
 }
 
