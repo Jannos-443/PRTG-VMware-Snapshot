@@ -14,7 +14,8 @@
     + Scanning Interval: minimum 5 minutes
 
     .PARAMETER ViServer
-    The Hostname of the VCenter Server
+    The Hostname of the VCenter/Esxi Server(s)
+    Define multiple servers like this: ("esxi1.example.com","esxi2.example.com")
 
     .PARAMETER User
     Provide the VCenter Username
@@ -206,6 +207,28 @@ try {
 
 catch {
     Write-Output "Error in Set-PowerCLIConfiguration but we will ignore it." #Error when another Script is currently accessing it.
+}
+
+if (($ViServer.Count -eq 1)) {
+    if ($ViServer[0] -eq "") {
+        Write-Output "<prtg>"
+        Write-Output "<error>1</error>"
+        Write-Output "<text>-ViServer cannot be empty</text>"
+        Write-Output "</prtg>"
+        Exit 
+    }
+
+    if ($ViServer[0].Contains(',')) {
+        $temp = $ViServer[0].ToString().Split(',')
+        $ViServer = New-Object System.Collections.ArrayList
+        
+        foreach ($t in $temp) {
+            $t = $t.replace("(", "")
+            $t = $t.replace(")", "")
+            $t = $t.replace("`"", "")
+            $null = $ViServer.Add($t)
+        }
+    }
 }
 
 # Connect to vCenter
