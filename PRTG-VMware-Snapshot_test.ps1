@@ -220,14 +220,16 @@ if (($ViServer.Count -eq 1)) {
 
     if ($ViServer[0].Contains(',')) {
         $temp = $ViServer[0].ToString().Split(',')
-        $ViServer = New-Object System.Collections.ArrayList
+        $ViServers = New-Object System.Collections.ArrayList
         
         foreach ($t in $temp) {
             $t = $t.replace("(", "")
             $t = $t.replace(")", "")
             $t = $t.replace("`"", "")
-            $null = $ViServer.Add($t)
+            $t = $t.replace(" ", "")
+            $null = $ViServers.Add($t)
         }
+    $ViServer = $ViServers
     }
 }
 
