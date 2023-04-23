@@ -226,6 +226,7 @@ if (($ViServer.Count -eq 1)) {
             $t = $t.replace("(", "")
             $t = $t.replace(")", "")
             $t = $t.replace("`"", "")
+            $t = $t.replace("'", "")
             $t = $t.replace(" ", "")
             $null = $ViServers.Add($t)
         }
